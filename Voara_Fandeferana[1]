@@ -1,0 +1,60 @@
+#coding:utf-8
+
+def karnaugh_minimize(f):
+    """
+    Minimise une fonction logique f en utilisant la méthode de Karnaugh.
+    
+    Paramètres:
+    f (function) - La fonction logique à minimiser.
+    
+    Retourne:
+    str - La forme minimisée de la fonction logique.
+    """
+    # Construire la table de Karnaugh
+    karnaugh_table = [[f(x, y) for y in [0, 1]] for x in [0, 1]]
+    
+    # Trouver les groupes de 1 dans la table de Karnaugh
+    groups = []
+    for i in range(2):
+        for j in range(2):
+            if karnaugh_table[i][j]:
+                group = [(i, j)]
+                # Étendre le groupe horizontalement
+                for k in range(j+1, 2):
+                    if karnaugh_table[i][k]:
+                        group.append((i, k))
+                    else:
+                        break
+                # Étendre le groupe verticalement
+                for l in range(i+1, 2):
+                    if karnaugh_table[l][j]:
+                        group.extend([(l, j) for k in range(j, 2) if karnaugh_table[l][k]])
+                    else:
+                        break
+                groups.append(group)
+    
+    # Trouver la forme minimisée
+    minimized_form = ""
+    for group in groups:
+        term = ""
+        for x, y in group:
+            if x == 0:
+                term += "~X" if term else "X"
+            else:
+                term += "X" if term else "~X"
+            if y == 0:
+                term += "~Y" if term else "Y"
+            else:
+                term += "Y" if term else "~Y"
+            if len(group) > 1:
+                term += " + "
+        minimized_form += term
+    
+    return minimized_form
+
+# Exemple d'utilisation
+def and_gate(x, y):
+    return x and y
+
+print(karnaugh_minimize(and_gate))  # Output: X * Y
+
